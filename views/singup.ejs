@@ -1,0 +1,116 @@
+<!--
+including header content which is common for all pages
+--> 
+<%- include layouts/header.ejs %>
+ <!-- Main content -->
+    <div class="content">
+      <div class="container">
+        <% if (messages.error) { %>
+           <div class="alert alert-danger alert-dismissible">
+              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+              <h5><i class="icon fas fa-ban"></i> ERROR!</h5><%- messages.error %>
+            </div> 
+        <% } %>
+
+        <% if (messages.success) { %>
+           
+          <div class="alert alert-success alert-dismissible">
+                      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                      <h5><i class="icon fas fa-check"></i> Sucess!</h5><%- messages.success %>
+                    </div>
+        <% } %> 
+        <div class="row"> 
+             <div class="col-md-8 card card-info">
+              <div class="card-header">
+                <h3 class="card-title">Sign Up</h3>
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body">
+ 
+                <form role="form" action="/singup" method="post" name="form1">
+                  <div class="card-body">
+                    <div class="form-group">
+                      <label for="exampleInputName">Name</label>
+                      <input name="name" type="name" class="form-control" id="exampleInputName" placeholder="Enter Name">
+                    </div>
+
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Email address</label>
+                      <input name="email" type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+                    </div>
+                    <div class="form-group">
+                      <label for="exampleInputPassword1">Password</label>
+                      <input name="password" type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                    </div> 
+                  </div>
+                  <!-- /.card-body -->
+                   <div class="card-footer">
+                    <input type="hidden" name="user_role" value="user">
+                    <button type="submit" id="form_btn_sbm" class="btn btn-primary">Submit</button>
+                  </div>
+                </form>  
+              </div>
+              <!-- /.card-body -->
+            </div>
+             
+        </div>
+        <!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+    <script type="text/javascript">
+      jQuery(document).ready(function(){
+        jQuery("#form_btn_sbm").prop("disabled", true);
+
+        jQuery(document).on('blur', '#exampleInputEmail1', function(e){
+          e.preventDefault();
+          var email_add = jQuery(this).val();
+          var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+          jQuery('.error').remove();
+
+
+          var form_error = 0;
+
+          if(email_add == ""){
+                form_error=1; 
+              $('#exampleInputEmail1').after('<label class="error" style="color:red;font-size: 12px;"> Please enter your email address</label>');
+          } 
+          else if(!emailReg.test(email_add)){
+              form_error=1; 
+              $('#exampleInputEmail1').after('<label class="error" style="color:red;font-size: 12px;"> Please enter a valid email address</label>');
+          }
+
+          if(form_error == 0){ 
+
+            jQuery("#form_btn_sbm").prop("disabled", true);
+            var form_data = {
+                     'email' : email_add
+                    };
+            jQuery.ajax({
+                url: "/email_exists",
+                type: "POST",
+                dataType: "json",
+                data: form_data,
+                success: function(data) {
+                  console.log(data);
+                  if(data.status == 1){
+                    $('#exampleInputEmail1').after('<label class="error" style="color:red;font-size: 12px;"> This email address already exists.</label>');
+                  }else{
+                     jQuery("#form_btn_sbm").prop("disabled", false);
+                  } 
+                }, 
+                error: function() {
+                  console.log('process error');
+                },
+            });
+          } 
+        });
+      })
+
+    </script>
+
+	 
+<!--
+including footer content which is common for all pages
+-->
+<%- include layouts/footer.ejs %>
